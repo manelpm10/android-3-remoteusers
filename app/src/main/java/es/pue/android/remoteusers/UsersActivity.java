@@ -10,13 +10,21 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 import es.pue.android.remoteusers.model.User;
 
@@ -43,28 +51,45 @@ public class UsersActivity extends AppCompatActivity {
                 InputStream is = con.getInputStream();
                 InputStreamReader isr = new InputStreamReader(is);
 
-                String result = "";
+                String usersJsonString = "";
                 int data = isr.read();
                 while (data != -1) {
                     char current = (char) data;
-                    result = result + current;
+                    usersJsonString = usersJsonString + current;
                     data = isr.read();
                 }
 
-                Log.i("JSON", result);
+                return usersJsonString;
             } catch (MalformedURLException e) {
                 e.printStackTrace();
+                return null;
             } catch (IOException e) {
                 e.printStackTrace();
+                return null;
             }
-
-            return "Remote users data";
         }
 
         @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-            Log.i("ASYNCH DATA", s);
+        protected void onPostExecute(String usersJsonString) {
+            parseData(usersJsonString);
+        }
+    }
+
+    private void parseData(String usersJsonString) {
+        try {
+            JSONArray usersJson = new JSONArray(usersJsonString);
+            for (int i=0; i < usersJson.length(); i++) {
+                JSONObject userJson = usersJson.getJSONObject(i);
+                if (null != userJson) {
+                    users.add(new User(
+                            userJson.getInt("id"),
+                            userJson.getString("username"),
+                            userJson.getString("email")
+                    ));
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 
@@ -75,6 +100,7 @@ public class UsersActivity extends AppCompatActivity {
 
         // Instantiate AsyncTask who will manage the asynchronous load of users.
         task = new UsersTask();
+        users = new ArrayList<>();
 
         lvUsers = findViewById(R.id.lvUsers);
         btLoadUsers = findViewById(R.id.btnLoadUsers);
