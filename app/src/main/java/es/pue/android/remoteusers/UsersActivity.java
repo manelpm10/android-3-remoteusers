@@ -31,7 +31,7 @@ import es.pue.android.remoteusers.model.User;
 public class UsersActivity extends AppCompatActivity {
 
     private final String USERS_URL = "http://jsonplaceholder.typicode.com/users";
-    private List<User> users = null;
+    private ArrayList<User> users = null;
     private ListView lvUsers;
     private Button btLoadUsers;
     private UsersTask task;
@@ -88,6 +88,9 @@ public class UsersActivity extends AppCompatActivity {
                     ));
                 }
             }
+
+            UsersArrayAdapter usersArrayAdaptersAdapter = new UsersArrayAdapter(this, R.layout.user_item, users);
+            lvUsers.setAdapter(usersArrayAdaptersAdapter);
         } catch (JSONException e) {
             e.printStackTrace();
         }
