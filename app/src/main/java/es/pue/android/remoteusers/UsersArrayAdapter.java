@@ -34,6 +34,9 @@ public class UsersArrayAdapter extends ArrayAdapter {
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+        /**
+         * ViewHolder pattern save memory because reuse the views you see in the screen.
+         */
         ViewHolder viewHolder;
         //View view = null;
         if (null == convertView) {
