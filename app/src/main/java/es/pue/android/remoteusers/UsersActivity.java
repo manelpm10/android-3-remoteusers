@@ -6,6 +6,8 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -94,6 +96,28 @@ public class UsersActivity extends AppCompatActivity {
         usersArrayAdaptersAdapter = new UsersArrayAdapter(this, R.layout.user_item, users);
 
         lvUsers.setOnItemClickListener(getOnItemEmailListener());
+    }
+
+    @Override
+    /**
+     * Link menu to activity.
+     */
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.options, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int idItem = item.getItemId();
+        switch (idItem) {
+            case R.id.opLoadUsers:
+                task.execute(USERS_URL);
+                break;
+            case R.id.opLoadTasks:
+                break;
+        }
+        return true;
     }
 
     private void parseData(String usersJsonString) {
