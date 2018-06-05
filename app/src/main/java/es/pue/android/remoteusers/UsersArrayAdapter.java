@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -33,20 +34,48 @@ public class UsersArrayAdapter extends ArrayAdapter {
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        // 1. Load resource
-        View view = this.inflater.inflate(this.layoutId, parent, false);
+        ViewHolder viewHolder;
+        //View view = null;
+        if (null == convertView) {
+            // 1. Load resource
+            convertView = this.inflater.inflate(this.layoutId, parent, false);
+            viewHolder = new ViewHolder(convertView);
+            convertView.setTag(viewHolder);
+        } else {
+            viewHolder = (ViewHolder) convertView.getTag();
+        }
 
         // 2. Assign to widget the info for each guest
+        /*
         TextView tvId = view.findViewById(R.id.tvId);
         TextView tvUsername = view.findViewById(R.id.tvUsername);
         TextView tvEmail = view.findViewById(R.id.tvEmail);
 
-        User user = this.users.get(position);
         tvId.setText(""+user.getId());
         tvUsername.setText(user.getUsername());
         tvEmail.setText(user.getEmail());
+        */
+
+        User user = this.users.get(position);
+        viewHolder.tvId.setText(""+user.getId());
+        viewHolder.tvUsername.setText(user.getUsername());
+        viewHolder.tvEmail.setText(user.getEmail());
 
         // 3. Return view
-        return view;
+        return convertView;
+    }
+
+    private class ViewHolder {
+        final ImageView ivAvatar;
+        final TextView tvId;
+        final TextView tvUsername;
+        final TextView tvEmail;
+
+        public ViewHolder(View v) {
+            this.ivAvatar = v.findViewById(R.id.ivAvatar);
+            this.tvId = v.findViewById(R.id.tvId);
+            this.tvUsername = v.findViewById(R.id.tvUsername);
+            this.tvEmail = v.findViewById(R.id.tvEmail);
+        }
     }
 }
