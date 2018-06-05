@@ -33,8 +33,8 @@ public class UsersActivity extends AppCompatActivity {
     private final String USERS_URL = "http://jsonplaceholder.typicode.com/users";
     private ArrayList<User> users = null;
     private ListView lvUsers;
-    private Button btLoadUsers;
     private UsersTask task;
+    private UsersArrayAdapter usersArrayAdaptersAdapter;
 
     /**
      * We will use AsyncTask to Application Not Responding (ANR) error that happens when
@@ -72,6 +72,7 @@ public class UsersActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String usersJsonString) {
             parseData(usersJsonString);
+            lvUsers.setAdapter(usersArrayAdaptersAdapter);
         }
     }
 
@@ -88,9 +89,6 @@ public class UsersActivity extends AppCompatActivity {
                     ));
                 }
             }
-
-            UsersArrayAdapter usersArrayAdaptersAdapter = new UsersArrayAdapter(this, R.layout.user_item, users);
-            lvUsers.setAdapter(usersArrayAdaptersAdapter);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -106,8 +104,10 @@ public class UsersActivity extends AppCompatActivity {
         users = new ArrayList<>();
 
         lvUsers = findViewById(R.id.lvUsers);
-        btLoadUsers = findViewById(R.id.btnLoadUsers);
+        Button btLoadUsers = findViewById(R.id.btnLoadUsers);
         btLoadUsers.setOnClickListener(getClickLoadUsersListener());
+
+        usersArrayAdaptersAdapter = new UsersArrayAdapter(this, R.layout.user_item, users);
     }
 
     @NonNull
