@@ -90,8 +90,6 @@ public class UsersActivity extends AppCompatActivity {
         users = new ArrayList<>();
 
         lvUsers = findViewById(R.id.lvUsers);
-        Button btLoadUsers = findViewById(R.id.btnLoadUsers);
-        btLoadUsers.setOnClickListener(getClickLoadUsersListener());
 
         usersArrayAdaptersAdapter = new UsersArrayAdapter(this, R.layout.user_item, users);
 
@@ -147,16 +145,6 @@ public class UsersActivity extends AppCompatActivity {
                 i.setType("text/html");
                 i.putExtra(Intent.EXTRA_EMAIL, users.get(position).getEmail());
                 startActivity(i);
-            }
-        };
-    }
-
-    @NonNull
-    private View.OnClickListener getClickLoadUsersListener() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                task.execute(USERS_URL);
             }
         };
     }
