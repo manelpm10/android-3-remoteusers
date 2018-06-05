@@ -14,4 +14,9 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <!-- Styles heritage overwriting text color -->
+    <style name="warning" parent="alert">
+        <item name="android:textColor">@color/colorTextWarning</item>
+    </style>
+
 </resources>
