@@ -1,11 +1,13 @@
 package es.pue.android.remoteusers;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -76,6 +78,24 @@ public class UsersActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_users);
+
+        // Instantiate AsyncTask who will manage the asynchronous load of users.
+        task = new UsersTask();
+        users = new ArrayList<>();
+
+        lvUsers = findViewById(R.id.lvUsers);
+        Button btLoadUsers = findViewById(R.id.btnLoadUsers);
+        btLoadUsers.setOnClickListener(getClickLoadUsersListener());
+
+        usersArrayAdaptersAdapter = new UsersArrayAdapter(this, R.layout.user_item, users);
+
+        lvUsers.setOnItemClickListener(getOnItemEmailListener());
+    }
+
     private void parseData(String usersJsonString) {
         try {
             JSONArray usersJson = new JSONArray(usersJsonString);
@@ -94,20 +114,17 @@ public class UsersActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_users);
-
-        // Instantiate AsyncTask who will manage the asynchronous load of users.
-        task = new UsersTask();
-        users = new ArrayList<>();
-
-        lvUsers = findViewById(R.id.lvUsers);
-        Button btLoadUsers = findViewById(R.id.btnLoadUsers);
-        btLoadUsers.setOnClickListener(getClickLoadUsersListener());
-
-        usersArrayAdaptersAdapter = new UsersArrayAdapter(this, R.layout.user_item, users);
+    @NonNull
+    private AdapterView.OnItemClickListener getOnItemEmailListener() {
+        return new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent i = new Intent(Intent.ACTION_SEND);
+                i.setType("text/html");
+                i.putExtra(Intent.EXTRA_EMAIL, users.get(position).getEmail());
+                startActivity(i);
+            }
+        };
     }
 
     @NonNull
