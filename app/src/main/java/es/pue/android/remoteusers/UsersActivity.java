@@ -11,6 +11,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,6 +35,20 @@ public class UsersActivity extends AppCompatActivity {
     private ListView lvUsers;
     private UsersTask task;
     private UsersArrayAdapter usersArrayAdaptersAdapter;
+    private RequestQueue queue;
+    private StringRequest stringRequest = new StringRequest(Request.Method.GET, USERS_URL,
+                new Response.Listener<String>() {
+        @Override
+        public void onResponse(String usersJsonFromQueue) {
+            parseData(usersJsonFromQueue);
+            lvUsers.setAdapter(usersArrayAdaptersAdapter);
+        }
+    }, new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            Toast.makeText(UsersActivity.this, R.string.litsErrorLoadingUsers, Toast.LENGTH_SHORT).show();
+        }
+    });
 
     // Declare the Receiver, and the IntentFilter with the action. We will register in onResume.
     private DataReceiver dataReceiver = new DataReceiver(){
@@ -38,6 +60,7 @@ public class UsersActivity extends AppCompatActivity {
         }
     };
     private IntentFilter iFilter = new IntentFilter("es.pue.android.remoteusers.JSON");
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +86,10 @@ public class UsersActivity extends AppCompatActivity {
         usersArrayAdaptersAdapter = new UsersArrayAdapter(this, R.layout.user_item, users);
 
         lvUsers.setOnItemClickListener(getOnItemEmailListener());
+
+
+        // Volley library integration.
+        queue = Volley.newRequestQueue(this);
     }
 
     @Override
@@ -99,7 +126,8 @@ public class UsersActivity extends AppCompatActivity {
         int idItem = item.getItemId();
         switch (idItem) {
             case R.id.opLoadUsers:
-                task.execute(USERS_URL);
+                //task.execute(USERS_URL);
+                queue.add(stringRequest);
                 break;
             case R.id.opLoadTasks:
                 Intent i = new Intent(this, UserService.class);

@@ -3,4 +3,5 @@
     <string name="litsLoadUsers">Load Users</string>
     <string name="opLoadTasks">Load Tasks</string>
     <string name="opLoadUsers">Load Users</string>
+    <string name="litsErrorLoadingUsers">Ops! Error loading users</string>
 </resources>
