@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="es.pue.android.remoteusers">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -11,7 +11,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".UsersActivity"
+        <activity
+            android:name=".UsersActivity"
             android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -19,6 +20,22 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".UserService"
+            android:enabled="true"
+            android:exported="false" />
+
+        <!-- Commented because we will register by code. Receivers can be registered that way.
+        <receiver
+            android:name=".DataReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="es.pue.android.remoteusers.JSON"/>
+            </intent-filter>
+        </receiver>
+        -->
     </application>
 
 </manifest>

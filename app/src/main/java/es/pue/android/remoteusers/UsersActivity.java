@@ -1,6 +1,9 @@
 package es.pue.android.remoteusers;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -40,53 +43,34 @@ public class UsersActivity extends AppCompatActivity {
     private UsersTask task;
     private UsersArrayAdapter usersArrayAdaptersAdapter;
 
-    /**
-     * We will use AsyncTask to Application Not Responding (ANR) error that happens when
-     * Java main thread is waiting for >5s.
-     */
-
-    private class UsersTask extends AsyncTask<String, Void, String> {
-
+    // Declare the Receiver, and the IntentFilter with the action. We will register in onResume.
+    private DataReceiver dataReceiver = new DataReceiver(){
         @Override
-        protected String doInBackground(String... urls) {
-            try {
-                URL url = new URL(urls[0]);
-                HttpURLConnection con = (HttpURLConnection) url.openConnection();
-                InputStream is = con.getInputStream();
-                InputStreamReader isr = new InputStreamReader(is);
-
-                String usersJsonString = "";
-                int data = isr.read();
-                while (data != -1) {
-                    char current = (char) data;
-                    usersJsonString = usersJsonString + current;
-                    data = isr.read();
-                }
-
-                return usersJsonString;
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-                return null;
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(String usersJsonString) {
-            parseData(usersJsonString);
+        public void onReceive(Context context, Intent intent) {
+            String usersJsonFromService = intent.getStringExtra("userJson");
+            parseData(usersJsonFromService);
             lvUsers.setAdapter(usersArrayAdaptersAdapter);
         }
-    }
+    };
+    private IntentFilter iFilter = new IntentFilter("es.pue.android.remoteusers.JSON");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_users);
 
-        // Instantiate AsyncTask who will manage the asynchronous load of users.
-        task = new UsersTask();
+        /**
+         * Instantiate AsyncTask who will manage the asynchronous load of users.
+         * We can override the onPostExecute method when is instantiated.
+         */
+        task = new UsersTask() {
+            @Override
+            protected void onPostExecute(String usersJsonString) {
+                parseData(usersJsonString);
+                lvUsers.setAdapter(usersArrayAdaptersAdapter);
+            }
+        };
+
         users = new ArrayList<>();
 
         lvUsers = findViewById(R.id.lvUsers);
@@ -94,6 +78,26 @@ public class UsersActivity extends AppCompatActivity {
         usersArrayAdaptersAdapter = new UsersArrayAdapter(this, R.layout.user_item, users);
 
         lvUsers.setOnItemClickListener(getOnItemEmailListener());
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        /**
+         * Register the receiver and join with the action we spect.
+         */
+        registerReceiver(dataReceiver, iFilter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        /**
+         * We unregister to don't use resources when activity is not visible.
+         */
+        unregisterReceiver(dataReceiver);
     }
 
     @Override
@@ -113,10 +117,14 @@ public class UsersActivity extends AppCompatActivity {
                 task.execute(USERS_URL);
                 break;
             case R.id.opLoadTasks:
+                Intent i = new Intent(this, UserService.class);
+                i.putExtra("url", USERS_URL);
+                startService(i);
                 break;
         }
         return true;
     }
+
 
     private void parseData(String usersJsonString) {
         try {
