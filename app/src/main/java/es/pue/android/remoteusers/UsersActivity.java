@@ -35,6 +35,8 @@ public class UsersActivity extends AppCompatActivity {
     private ListView lvUsers;
     private UsersTask task;
     private UsersArrayAdapter usersArrayAdaptersAdapter;
+
+    // Volley variables.
     private RequestQueue queue;
     private StringRequest stringRequest = new StringRequest(Request.Method.GET, USERS_URL,
                 new Response.Listener<String>() {
