@@ -10,16 +10,16 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import es.pue.android.remoteusers.model.User;
 
 public class UsersArrayAdapter extends ArrayAdapter {
-    ArrayList<User> users;
+    List<User> users;
     private int layoutId;
     private LayoutInflater inflater;
 
-    public UsersArrayAdapter(@NonNull Context context, int resource, @NonNull ArrayList<User> users) {
+    public UsersArrayAdapter(@NonNull Context context, int resource, @NonNull List<User> users) {
         super(context, resource, users);
         this.users = users;
         this.layoutId = resource;

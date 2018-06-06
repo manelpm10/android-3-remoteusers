@@ -19,19 +19,19 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.List;
 
 import es.pue.android.remoteusers.model.User;
 
 public class UsersActivity extends AppCompatActivity {
 
     private final String USERS_URL = "http://jsonplaceholder.typicode.com/users";
-    private ArrayList<User> users = null;
+    private List<User> users = null;
     private ListView lvUsers;
     private UsersTask task;
     private UsersArrayAdapter usersArrayAdaptersAdapter;
@@ -42,7 +42,8 @@ public class UsersActivity extends AppCompatActivity {
                 new Response.Listener<String>() {
         @Override
         public void onResponse(String usersJsonFromQueue) {
-            parseData(usersJsonFromQueue);
+            parseDataGson(usersJsonFromQueue);
+            usersArrayAdaptersAdapter = new UsersArrayAdapter(UsersActivity.this, R.layout.user_item, users);
             lvUsers.setAdapter(usersArrayAdaptersAdapter);
         }
     }, new Response.ErrorListener() {
@@ -57,7 +58,8 @@ public class UsersActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             String usersJsonFromService = intent.getStringExtra("userJson");
-            parseData(usersJsonFromService);
+            parseDataGson(usersJsonFromService);
+            usersArrayAdaptersAdapter = new UsersArrayAdapter(UsersActivity.this, R.layout.user_item, users);
             lvUsers.setAdapter(usersArrayAdaptersAdapter);
         }
     };
@@ -76,19 +78,18 @@ public class UsersActivity extends AppCompatActivity {
         task = new UsersTask() {
             @Override
             protected void onPostExecute(String usersJsonString) {
-                parseData(usersJsonString);
+                parseDataGson(usersJsonString);
+                usersArrayAdaptersAdapter = new UsersArrayAdapter(UsersActivity.this, R.layout.user_item, users);
                 lvUsers.setAdapter(usersArrayAdaptersAdapter);
             }
         };
 
         users = new ArrayList<>();
+        // TODO instantiate ArrayAdapter here and solve problem with GSON
+        //usersArrayAdaptersAdapter = new UsersArrayAdapter(this, R.layout.user_item, users);
 
         lvUsers = findViewById(R.id.lvUsers);
-
-        usersArrayAdaptersAdapter = new UsersArrayAdapter(this, R.layout.user_item, users);
-
         lvUsers.setOnItemClickListener(getOnItemEmailListener());
-
 
         // Volley library integration.
         queue = Volley.newRequestQueue(this);
@@ -140,7 +141,16 @@ public class UsersActivity extends AppCompatActivity {
         return true;
     }
 
+    private void parseDataGson(String usersJsonString) {
+        Gson gson = new Gson();
 
+        Type userListType = new TypeToken<ArrayList<User>>(){}.getType();
+
+        users = gson.fromJson(usersJsonString, userListType);
+    }
+
+    /**
+     * Not needed after add GSON library
     private void parseData(String usersJsonString) {
         try {
             JSONArray usersJson = new JSONArray(usersJsonString);
@@ -158,6 +168,7 @@ public class UsersActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+     */
 
     @NonNull
     private AdapterView.OnItemClickListener getOnItemEmailListener() {
