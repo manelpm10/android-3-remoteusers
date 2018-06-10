@@ -31,7 +31,7 @@ import es.pue.android.remoteusers.model.User;
 public class UsersActivity extends AppCompatActivity {
 
     private final String USERS_URL = "http://jsonplaceholder.typicode.com/users";
-    private List<User> users = null;
+    private List<User> users;
     private ListView lvUsers;
     private UsersTask task;
     private UsersArrayAdapter usersArrayAdaptersAdapter;
@@ -43,7 +43,6 @@ public class UsersActivity extends AppCompatActivity {
         @Override
         public void onResponse(String usersJsonFromQueue) {
             parseDataGson(usersJsonFromQueue);
-            usersArrayAdaptersAdapter = new UsersArrayAdapter(UsersActivity.this, R.layout.user_item, users);
             lvUsers.setAdapter(usersArrayAdaptersAdapter);
         }
     }, new Response.ErrorListener() {
@@ -59,7 +58,6 @@ public class UsersActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             String usersJsonFromService = intent.getStringExtra("userJson");
             parseDataGson(usersJsonFromService);
-            usersArrayAdaptersAdapter = new UsersArrayAdapter(UsersActivity.this, R.layout.user_item, users);
             lvUsers.setAdapter(usersArrayAdaptersAdapter);
         }
     };
@@ -79,14 +77,12 @@ public class UsersActivity extends AppCompatActivity {
             @Override
             protected void onPostExecute(String usersJsonString) {
                 parseDataGson(usersJsonString);
-                usersArrayAdaptersAdapter = new UsersArrayAdapter(UsersActivity.this, R.layout.user_item, users);
                 lvUsers.setAdapter(usersArrayAdaptersAdapter);
             }
         };
 
         users = new ArrayList<>();
-        // TODO instantiate ArrayAdapter here and solve problem with GSON
-        //usersArrayAdaptersAdapter = new UsersArrayAdapter(this, R.layout.user_item, users);
+        usersArrayAdaptersAdapter = new UsersArrayAdapter(this, R.layout.user_item, users);
 
         lvUsers = findViewById(R.id.lvUsers);
         lvUsers.setOnItemClickListener(getOnItemEmailListener());
@@ -142,11 +138,8 @@ public class UsersActivity extends AppCompatActivity {
     }
 
     private void parseDataGson(String usersJsonString) {
-        Gson gson = new Gson();
-
-        Type userListType = new TypeToken<ArrayList<User>>(){}.getType();
-
-        users = gson.fromJson(usersJsonString, userListType);
+        List<User> parsedUsers = new Gson().fromJson(usersJsonString, new TypeToken<ArrayList<User>>(){}.getType());
+        users.addAll(parsedUsers);
     }
 
     /**
